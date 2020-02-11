@@ -1,29 +1,15 @@
 use "time"
+use "stringext"
 
-
-class Eml is Stringable
+class Eml
   """
   Helper to construct EML text for sending emails
   """
-  
-  /*
-static const char *payload_text[] = {
-  "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
-  "To: " TO_MAIL "\r\n",
-  "From: " FROM_MAIL "\r\n",
-  "Cc: " CC_MAIL "\r\n",
-  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
-  "rfcpedant.example.org>\r\n",
-  "Subject: SMTP example message\r\n",
-  "\r\n",
-  "The body of the message starts here.\r\n",
-  "\r\n",
-  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
-  "Check RFC5322.\r\n",
-  NULL
-};
-*/
   var smtpAddress:String = ""
+  
+  var useSSL:Bool = false
+  var username:String = ""
+  var password:String = ""
   
   var toAddress:String = ""
   var fromAddress:String = ""
@@ -45,43 +31,33 @@ static const char *payload_text[] = {
     other.body = body
     consume other
   
-  fun string(): String iso^ =>
-    let eml = recover iso String(1024) end
+  fun lines(): Array[String] iso^ =>
+    let arr = recover iso Array[String](1024) end
     
-    eml.append("Date: ")
-    try eml.append(PosixDate(Time.seconds()).format("%Y-%m-%d %H:%M:%S")?) end
-    eml.append("\r\n")
+    try
+      arr.push(StringExt.format("Date: %s\r\n", PosixDate(Time.seconds()).format("%Y-%m-%d %H:%M:%S")?))
+    end
     
     if toAddress.size() > 0 then
-      eml.append("To: ")
-      eml.append(toAddress)
-      eml.append("\r\n")
+      arr.push(StringExt.format("To: %s\r\n", toAddress))
     end
     
     if fromAddress.size() > 0 then
-      eml.append("From: ")
-      eml.append(fromAddress)
-      eml.append("\r\n")
+      arr.push(StringExt.format("From: %s\r\n", fromAddress))
     end
     
     if ccAddress.size() > 0 then
-      eml.append("Cc: ")
-      eml.append(ccAddress)
-      eml.append("\r\n")
+      arr.push(StringExt.format("Cc: %s\r\n", ccAddress))
     end
     
     if messageID.size() > 0 then
-      eml.append("Message-ID: ")
-      eml.append(messageID)
-      eml.append("\r\n")
+      arr.push(StringExt.format("Message-ID: %s\r\n", messageID))
     end
     
-    eml.append("Subject: ")
-    eml.append(subject)
-    eml.append("\r\n")
+    arr.push(StringExt.format("Subject: %s\r\n", subject))
     
-    eml.append("\r\n")
-    eml.append(body)
-    eml.append("\r\n")
+    arr.push("\r\n")    
+    arr.push(body); arr.push("\r\n")
+    arr.push("\r\n")
     
-    consume eml
+    consume arr
