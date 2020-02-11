@@ -42,6 +42,7 @@ actor SendMail
     end
 	  0
   
+  // TODO: keep the setup on create, move the eml send to a separate behaviour
   new create(eml:Eml val)? =>
     var r:CurlErrorCode
     

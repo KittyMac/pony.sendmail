@@ -60,4 +60,18 @@ class Eml
     arr.push(body); arr.push("\r\n")
     arr.push("\r\n")
     
+    /*
+    arr.push("Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n")
+    arr.push("To: someother@gmail.com\r\n")
+    arr.push("From: myemail@gmail.com (Example User)\r\n")
+    arr.push("Cc: someother2@hotmail.com (Another example User)\r\n")
+    arr.push("Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@")
+    arr.push("rfcpedant.example.org>\r\n")
+    arr.push("Subject: SMTP example message\r\n")
+    arr.push("\r\n")
+    arr.push("The body of the message starts here.\r\n")
+    arr.push("\r\n")
+    arr.push("It could be a lot of lines, could be MIME encoded, whatever.\r\n")
+    arr.push("Check RFC5322.\r\n")
+    */
     consume arr
