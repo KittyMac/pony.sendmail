@@ -1,18 +1,5 @@
 use "lib:curl"
 
-use @curl_easy_init[CurlRef]()
-use @curl_easy_cleanup[None](curl:CurlRef tag)
-
-use @curl_easy_setopt[CurlErrorCode](curl:CurlRef tag, option:CurlOptionCode, parameter:USize tag)
-use @curl_slist_append[CurlSlistRef](list:CurlSlistRef tag, string:Pointer[U8] tag)
-use @curl_slist_free_all[None](list:CurlSlistRef tag)
-use @curl_easy_perform[CurlErrorCode](curl:CurlRef tag)
-
-primitive Curl
-
-type CurlRef is Pointer[None]
-type CurlSlistRef is Pointer[None]
-
 struct PayloadStruct
 	var current_line:USize
 	let lines:Array[String] val
@@ -44,50 +31,50 @@ actor SendMail
   
   // TODO: keep the setup on create, move the eml send to a separate behaviour
   new create(eml:Eml val)? =>
-    var r:CurlErrorCode
+    var r:U32
     
     curl = @curl_easy_init()
     if curl.is_null() then error end
     
     if eml.useSSL then
-      r = @curl_easy_setopt(curl, CurlOption.use_ssl(), CurlUseSsl.all())
-      if r != CurlError.ok() then error r end
+      r = @curl_easy_setopt(curl, CurloptionEnum.use_ssl(), CurlUsesslEnum.curlusessl_all())
+      if r != CurlcodeEnum.curle_ok() then error r end
     end
     
     if eml.username.size() > 0 then
-      r = @curl_easy_setopt(curl, CurlOption.username(), eml.username.cstring().usize())
-      if r != CurlError.ok() then error r end
+      r = @curl_easy_setopt(curl, CurloptionEnum.username(), eml.username.cstring().usize())
+      if r != CurlcodeEnum.curle_ok() then error r end
     end
     
     if eml.password.size() > 0 then
-      r = @curl_easy_setopt(curl, CurlOption.password(), eml.password.cstring().usize())
-      if r != CurlError.ok() then error r end
+      r = @curl_easy_setopt(curl, CurloptionEnum.password(), eml.password.cstring().usize())
+      if r != CurlcodeEnum.curle_ok() then error r end
     end
     
-    r = @curl_easy_setopt(curl, CurlOption.url(), eml.smtpAddress.cstring().usize())
-    if r != CurlError.ok() then error r end
+    r = @curl_easy_setopt(curl, CurloptionEnum.url(), eml.smtpAddress.cstring().usize())
+    if r != CurlcodeEnum.curle_ok() then error r end
     
-    r = @curl_easy_setopt(curl, CurlOption.mail_from(), eml.fromAddress.cstring().usize())
-    if r != CurlError.ok() then error r end
+    r = @curl_easy_setopt(curl, CurloptionEnum.mail_from(), eml.fromAddress.cstring().usize())
+    if r != CurlcodeEnum.curle_ok() then error r end
     
     var recipients = CurlSlistRef
     recipients = @curl_slist_append(recipients, eml.toAddress.cstring())
-    r = @curl_easy_setopt(curl, CurlOption.mail_rcpt(), recipients.usize())
-    if r != CurlError.ok() then error r end
+    r = @curl_easy_setopt(curl, CurloptionEnum.mail_rcpt(), recipients.usize())
+    if r != CurlcodeEnum.curle_ok() then error r end
     
-    r = @curl_easy_setopt(curl, CurlOption.readfunction(), addressof_usize this.payload_fn)
-    if r != CurlError.ok() then error r end
+    r = @curl_easy_setopt(curl, CurloptionEnum.readfunction(), addressof_usize this.payload_fn)
+    if r != CurlcodeEnum.curle_ok() then error r end
     
     var payload = PayloadStruct(eml.lines())
     var payloadPtr = NullablePointer[PayloadStruct](payload)
-    r = @curl_easy_setopt(curl, CurlOption.readdata(), payloadPtr.usize() )
-    if r != CurlError.ok() then error r end
+    r = @curl_easy_setopt(curl, CurloptionEnum.readdata(), payloadPtr.usize() )
+    if r != CurlcodeEnum.curle_ok() then error r end
     
-    r = @curl_easy_setopt(curl, CurlOption.upload(), 1)
-    if r != CurlError.ok() then error r end
+    r = @curl_easy_setopt(curl, CurloptionEnum.upload(), USize(1))
+    if r != CurlcodeEnum.curle_ok() then error r end
     
 	  r = @curl_easy_perform(curl)
-    if r != CurlError.ok() then error r end
+    if r != CurlcodeEnum.curle_ok() then error r end
     
     @curl_slist_free_all(recipients)
     

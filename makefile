@@ -1,6 +1,6 @@
 
 all:
-	corral run -- ponyc -o ./build/ ./sendmail
+	corral run -- ponyc --print-code -o ./build/ ./sendmail
 	./build/sendmail
 
 test:
