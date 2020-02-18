@@ -42,24 +42,24 @@ actor SendMail
     end
     
     if eml.username.size() > 0 then
-      r = @curl_easy_setopt(curl, CurloptionEnum.username(), eml.username.cstring().usize())
+      r = @curl_easy_setopt(curl, CurloptionEnum.username(), eml.username.cstring())
       if r != CurlcodeEnum.ok() then error r end
     end
     
     if eml.password.size() > 0 then
-      r = @curl_easy_setopt(curl, CurloptionEnum.password(), eml.password.cstring().usize())
+      r = @curl_easy_setopt(curl, CurloptionEnum.password(), eml.password.cstring())
       if r != CurlcodeEnum.ok() then error r end
     end
     
-    r = @curl_easy_setopt(curl, CurloptionEnum.url(), eml.smtpAddress.cstring().usize())
+    r = @curl_easy_setopt(curl, CurloptionEnum.url(), eml.smtpAddress.cstring())
     if r != CurlcodeEnum.ok() then error r end
     
-    r = @curl_easy_setopt(curl, CurloptionEnum.mail_from(), eml.fromAddress.cstring().usize())
+    r = @curl_easy_setopt(curl, CurloptionEnum.mail_from(), eml.fromAddress.cstring())
     if r != CurlcodeEnum.ok() then error r end
     
     var recipients = CurlSlistRef
     recipients = @curl_slist_append(recipients, eml.toAddress.cstring())
-    r = @curl_easy_setopt(curl, CurloptionEnum.mail_rcpt(), recipients.usize())
+    r = @curl_easy_setopt(curl, CurloptionEnum.mail_rcpt(), recipients)
     if r != CurlcodeEnum.ok() then error r end
     
     r = @curl_easy_setopt(curl, CurloptionEnum.readfunction(), addressof_usize this.payload_fn)
@@ -67,7 +67,7 @@ actor SendMail
     
     var payload = PayloadStruct(eml.lines())
     var payloadPtr = NullablePointer[PayloadStruct](payload)
-    r = @curl_easy_setopt(curl, CurloptionEnum.readdata(), payloadPtr.usize() )
+    r = @curl_easy_setopt(curl, CurloptionEnum.readdata(), payloadPtr )
     if r != CurlcodeEnum.ok() then error r end
     
     r = @curl_easy_setopt(curl, CurloptionEnum.upload(), USize(1))
